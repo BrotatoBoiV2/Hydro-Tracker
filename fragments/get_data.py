@@ -14,9 +14,9 @@ load_dotenv()
 URL = os.getenv("LOGIN_URL")
 EMAIL = os.getenv("LOGIN_EMAIL")
 PASS = os.getenv("LOGIN_PASS")
-# os.environ["MOZ_HEADLESS"] = "1"
+os.environ["MOZ_HEADLESS"] = "1"
 OPTIONS = Options()
-# OPTIONS.add_argument("--headless")
+OPTIONS.add_argument("--headless")
 
 def obtain_data():
     driver = webdriver.Firefox(options=OPTIONS)
