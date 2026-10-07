@@ -38,7 +38,17 @@
 
 ---
 
+### 2026/10/07
+
+* 20:40
+  - Finished the base template for the settings page.
+  - Next, I need to make the save button save to the
+    config file. Also, I want to have the config info
+    that is already set preset into the fields.
+
+---
+
 ## TO-DO
 
-* Finish the changing menus in the daemon app.
-* Have the settings render with the settings fields.
+* Have the save button save the configuration input.
+* Pre-input the configuration values.

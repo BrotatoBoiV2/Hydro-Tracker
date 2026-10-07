@@ -3,8 +3,9 @@ from pathlib import Path
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Container
-from textual.widgets import ContentSwitcher, Footer, Header, Static, Input
+from textual.containers import Container, Horizontal
+from textual.widgets import ContentSwitcher, Footer, Header, Static, Input, Button
+from textual_timepiece.pickers import TimePicker
 
 
 class HydroDaemonApp(App):
@@ -24,25 +25,45 @@ class HydroDaemonApp(App):
         content-align: center middle;
         text-style: bold;
         color: yellow;
+        border-bottom: dashed lime;
     }
     .menu-content {
-        height: 15;
+        height: 30;
         color: purple;
+        margin-bottom: 40;
         content-align: left top;
-        border-top: dashed lime;
     }
     .menu-footer {
-        height: 8;
+        height: 5;
         content-align: left middle;
         text-style: bold;
         color: magenta;
         border-top: dashed lime;
     }
+    Horizontal Static {
+        width: auto;
+    }
+
+    Input {
+        margin-left: 10;
+        width: 40;
+    }
+    TimePicker {
+        margin-left: 10;
+        width: 40;
+    }
+    Horizontal {
+        height: 3;
+        margin-bottom: 1;
+    }
+    .save-btn {
+        width: 5;
+    }
     """
 
     BINDINGS = [
-        Binding("q", "quit", "Quit"),
-        Binding("s", "toggle_settings", "Settings"),
+        Binding("ctrl+q", "quit", "Quit"),
+        Binding("ctrl+s", "toggle_settings", "Settings"),
     ]
 
     def __init__(self):
@@ -70,21 +91,34 @@ class HydroDaemonApp(App):
         with Container(id="daemon-container"):
             with ContentSwitcher(initial=self.menu, id="menu-switcher"):
                 # View 1: Settings
-                with Container(id="settings"):
+                with Container(id="settings", classes="menu-content"):
                     yield Static("Settings", classes="menu-header")
                     # yield Static(f"Loaded Config: {self.config}", classes="menu-content")
                     # email
-                    with Container(id="menu-content"):
-                        yield Static("Email: ")
-                        yield Input(placeholder="Email to log in with")
+                    # with Container(classes="menu-content"):
+                    with Horizontal():
+                        yield Static("Email       : ")
+                        yield Input(placeholder="Login Email")
+
+                    with Horizontal():
+                        yield Static("Password    : ")
+                        yield Input(password=True, placeholder="Login Password") # Make this render as *********
+                    
+                    with Horizontal():
+                        yield Static("Update Time : ")
+                        yield TimePicker()
+
+                    yield Button("Save!", id="save-btn")
+
+                    # yield Input(placeholder="Email to log in with")
                     # password
                     # Time to get data
-                    yield Static("Press t to toggle view | q to quit", classes="menu-footer")
+                    yield Static("Press s to toggle settings | q to quit", classes="menu-footer")
 
                 # View 2: Main Menu
-                with Container(id="main"):
+                with Container(id="main", classes="menu-content"):
                     yield Static("Hydro Daemon", classes="menu-header")
-                    yield Static(classes="menu-content")
+                    # yield Static()
                     yield Static(classes="menu-footer")
 
         yield Footer()
