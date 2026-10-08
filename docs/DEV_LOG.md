@@ -48,7 +48,17 @@
 
 ---
 
+### 2026/10/08
+
+* 18:37
+  - Finished having the settings save, as well as
+    created a custom secure password cryptographic
+    module.
+  - Next, I need to have the existing values get
+    filled in on the settings page.
+
+---
+
 ## TO-DO
 
-* Have the save button save the configuration input.
 * Pre-input the configuration values.
