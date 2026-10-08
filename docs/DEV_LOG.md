@@ -57,8 +57,15 @@
   - Next, I need to have the existing values get
     filled in on the settings page.
 
+* 20:33
+  - Existing values get prefilled in the settings.
+  - Daemon screen now displays the status and buttons
+    to control it.
+  - A log screen has been added to the menus.
+
 ---
 
 ## TO-DO
 
-* Pre-input the configuration values.
+* Add the third button for service creation and
+  have the buttons work as intended.
