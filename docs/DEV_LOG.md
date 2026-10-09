@@ -63,9 +63,16 @@
     to control it.
   - A log screen has been added to the menus.
 
+### 2026/10/09
+
+* 06:20
+  - Got the daemon creator working, might need to
+    make it call a seperate binary to obtain data.
+  - Secure Password binary is only functional on
+    this machine. Testing delayed.
+
 ---
 
 ## TO-DO
 
-* Add the third button for service creation and
-  have the buttons work as intended.
+* Have a functional binary for testing.

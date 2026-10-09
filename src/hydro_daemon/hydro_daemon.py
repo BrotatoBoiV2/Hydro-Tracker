@@ -1,5 +1,8 @@
+#!../../.hydro.venv/bin/python
 import json
 import subprocess
+from pathlib import Path
+import getpass
 from pathlib import Path
 
 from textual import on
@@ -9,6 +12,10 @@ from textual.containers import Container, Horizontal
 from textual.widgets import ContentSwitcher, Footer, Header, Static, Input, Button, Label
 from textual_timepiece.pickers import TimePicker
 from whenever import Time
+
+
+SYSTEMD_PATH = "/etc/systemd/system/"
+SECURE_PASS_BIN = Path(__file__).parent / "lib/secure_pass"
 
 
 class HydroDaemonApp(App):
@@ -82,7 +89,7 @@ class HydroDaemonApp(App):
     def check_status(self) -> str:
         try:
             result = subprocess.run(
-                ["systemctl", "status", 'hydro_daemon.service'],
+                ["systemctl", "status", 'hydro_tracker.service'],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
@@ -113,7 +120,7 @@ class HydroDaemonApp(App):
         login_email = self.query_one("#login-email").value
         login_password = self.query_one("#login-password").value
         refresh_time = f"{self.query_one("#refresh-time").value}"
-        enc_pass_res = subprocess.run(["lib/secure_pass", login_password, "--encrypt"], capture_output=True)
+        enc_pass_res = subprocess.run([SECURE_PASS_BIN, login_password, "--encrypt"], capture_output=True)
         enc_pass = enc_pass_res.stdout.decode('utf-8').replace('\n', '')
 
         data = {
@@ -125,6 +132,51 @@ class HydroDaemonApp(App):
         with open(self.config_file, "w") as file:
             json.dump(data, file, indent=4)
 
+    @on(Button.Pressed, "#start-daemon")
+    def start_daemon(self) -> None:
+        subprocess.run(["systemctl", "enable", "hydro_tracker.service"])
+        subprocess.run(["systemctl", "start", "hydro_tracker.service"])
+
+    @on(Button.Pressed, "#kill-daemon")
+    def kill_daemon(self) -> None:
+        subprocess.run(["systemctl", "disable", "hydro_tracker.service"])
+        subprocess.run(["systemctl", "stop", "hydro_tracker.service"]) 
+
+    @on(Button.Pressed, "#create-service")
+    def create_service(self) -> None:
+        with open("log.txt", "w") as file:
+            file.write(str(self.config))
+        service_content = f"""
+        [Unit]
+        Description=Obtains hydro data and cleans it for processing.
+        After=network.target
+
+        [Service]
+        Type=oneshot
+        User={getpass.getuser()}
+        ExecStart=/usr/bin/hydro-daemon
+        """
+        timer_content = f"""
+        [Unit]
+        Description=Timer for the Hydro Tracker Daemon caller.
+
+        [Timer]
+        # Schedule configuration
+        OnCalendar=*-*-* {self.config["Refresh_Time"]}
+        Persistent=true
+
+        [Install]
+        WantedBy=timers.target
+        """
+
+        Path(SYSTEMD_PATH).mkdir(parents=True, exist_ok=True)
+
+        with open(f'{SYSTEMD_PATH}hydro_tracker.service', "w") as file:
+            file.write(service_content)
+        
+        with open(f'{SYSTEMD_PATH}hydro_tracker.timer', 'w') as file:
+            file.write(timer_content)
+
     def compose(self) -> ComposeResult:
         yield Header()
 
@@ -133,9 +185,9 @@ class HydroDaemonApp(App):
                 with Container(id="settings", classes="menu-content"):
                     email = self.config.get("Login_Email", "")
                     enc_password = self.config.get("Login_Password", "")
-                    dec_pass_res = subprocess.run(["lib/secure_pass", enc_password, "--decrypt"], capture_output=True)
+                    dec_pass_res = subprocess.run([SECURE_PASS_BIN, enc_password, "--decrypt"], capture_output=True)
                     password = dec_pass_res.stdout.decode('utf-8').replace('\n', '')
-                    refresh_time = self.config.get("Refresh_Time", "")
+                    refresh_time = self.config.get("Refresh_Time", "00:00:00")
 
                     yield Static("Settings", classes="menu-header")
                     
@@ -158,8 +210,9 @@ class HydroDaemonApp(App):
                     yield Label(f"Daemon Status: {self.check_status()}", id="daemon-status")
 
                     with Horizontal():
-                        yield Button("Start Daemon")
-                        yield Button("Kill Daemon")
+                        yield Button("Start Daemon", id="start-daemon")
+                        yield Button("Kill Daemon", id="kill-daemon")
+                        yield Button("Create Service", id="create-service")
                         
                     yield Static(classes="menu-footer")
 
