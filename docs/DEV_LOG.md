@@ -71,6 +71,19 @@
   - Secure Password binary is only functional on
     this machine. Testing delayed.
 
+* 15:20
+  - Trying to figure out how to have the secure pass
+    binary secret and unaccessible to anyone but the
+    script.
+
+---
+
+### 2026/10/14
+
+* 20:00
+  - Trying to get the client to send and receive data from
+    the server without causing a timeout.
+
 ---
 
 ## TO-DO

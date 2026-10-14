@@ -1,5 +1,6 @@
 #!../../.hydro.venv/bin/python
 import json
+import sys
 import subprocess
 from pathlib import Path
 import getpass
@@ -13,10 +14,19 @@ from textual.widgets import ContentSwitcher, Footer, Header, Static, Input, Butt
 from textual_timepiece.pickers import TimePicker
 from whenever import Time
 
+from data_handler import obtain_data, clean_data, BASE_DIR
+
 
 SYSTEMD_PATH = "/etc/systemd/system/"
 SECURE_PASS_BIN = Path(__file__).parent / "lib/secure_pass"
 
+
+def update_data():
+    print("Obtaining data...")
+    obtain_data()
+    print("Data obtained, now cleaning it...")
+    clean_data()
+    print("Data is cleaned and ready to use!")
 
 class HydroDaemonApp(App):
     CSS = """
@@ -74,16 +84,16 @@ class HydroDaemonApp(App):
         Binding("ctrl+s", "toggle_settings", "Settings", priority=True),
         Binding("ctrl+l", "toggle_logs", "Logs", priority=True),
         Binding("ctrl+d", "toggle_daemon", "Daemon", priority=True),
-        Binding("ctrl+r", "update_info", "Refresh", priority=True)
+        Binding("ctrl+r", "update_info", "Refresh", priority=True),
+        Binding("ctrl+u", "update_data", "Update Data", priority=True)
     ]
 
     def __init__(self):
         super().__init__()
         self.menu = "daemon"
         self.last_menu = "daemon"
-        self.base_dir = Path("~/.hydro").expanduser()
-        self.base_dir.mkdir(parents=True, exist_ok=True)
-        self.config_file = self.base_dir / "config.json"
+        
+        self.config_file = BASE_DIR / "config.json"
         self.config = self.get_config()
 
     def check_status(self) -> str:
@@ -113,6 +123,7 @@ class HydroDaemonApp(App):
                     return json.load(file)
             except json.JSONDecodeError:
                 return {}
+
         return {}
 
     @on(Button.Pressed, "#save-btn")
@@ -131,6 +142,8 @@ class HydroDaemonApp(App):
 
         with open(self.config_file, "w") as file:
             json.dump(data, file, indent=4)
+
+        self.get_config()
 
     @on(Button.Pressed, "#start-daemon")
     def start_daemon(self) -> None:
@@ -250,4 +263,15 @@ class HydroDaemonApp(App):
 
 
 if __name__ == "__main__":
-    HydroDaemonApp().run()
+    try:
+        option = sys.argv[1]
+
+        if option == "--update":
+            print("Updating...")
+            update_data()
+
+    except:
+        pass
+
+    if len(sys.argv) == 1:
+        HydroDaemonApp().run()

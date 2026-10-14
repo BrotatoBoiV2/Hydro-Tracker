@@ -46,5 +46,14 @@ def clean_data():
         "Current_Cost": float(f"{cur_cost:.2f}")
     }
 
-    with open(Path("~/.hydro/current_bill.json").expanduser(), "w") as file:
+    current_bill = Path("~/.hydro/current_bill.json").expanduser()
+    old_bill = Path("~/.hydro/old_bill.json").expanduser()
+
+    if current_bill.exists():
+        with open(current_bill, "r") as file:
+            with open(old_bill, "w") as old_file:
+                data = json.load(file)
+                json.dump(data, old_file, indent=4)
+
+    with open(current_bill, "w") as file:
         json.dump(final, file, indent=4)

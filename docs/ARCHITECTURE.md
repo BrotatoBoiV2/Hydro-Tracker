@@ -45,3 +45,27 @@ view that days `h`ourly hydro usage.
 An `install.sh` script is used to compile the code into
 the required binaries and place them in the `/usr/bin/`
 directory so the commands can be called directly.
+
+---
+
+### Password Model
+
+[Client / TUI App]                                    [Central Server]
+        │                                                     │
+        │── 1. Request Challenge / Nonce ────────────────────►│
+        │                                                     │ (Generates unique Nonce: 
+        │                                                     │  e.g., "a8f9-4b2c", and 
+        │                                                     │  saves it to temporary memory)
+        │◄── 2. Returns Nonce ────────────────────────────────│
+        │                                                     │
+        │                                                     │
+        │ (Bundles: Payload + Nonce)                          │
+        │ Encrypts bundle using Server's Public Key           │
+        │                                                     │
+        │── 3. Sends Encrypted Ciphertext ───────────────────►│
+        │                                                     │ (Decrypts using Private Key)
+        │                                                     │ (Checks: Is Nonce valid & unused?)
+        │                                                     │ (Marks Nonce as "USED")
+        │                                                     │
+        │◄── 4. Returns Success / API Response ───────────────│
+        │                                                     │
