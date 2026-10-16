@@ -86,6 +86,14 @@
 
 ---
 
+### 2026/10/16
+
+* 16:35
+  - Fixed the connection transaction and can simply
+    encrypt and decrypt with a custom hash and nonce.
+
+---
+
 ## TO-DO
 
 * Have a functional binary for testing.

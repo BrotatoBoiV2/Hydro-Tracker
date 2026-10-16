@@ -43,30 +43,24 @@ def create_hash() -> str:
 
 HASH = create_hash()
 onion_port = 9090
-ONION = "arnead3ukjzds453zdi37piwusefi6np4gqsmvivq6frv6l2qa4lx6id.onion"
+ONION = "fqum6wts4kfwcwatsqocaoyz3xt5vlrustlthmhvb57znwowunl6pwqd.onion"
 tor_data = tempfile.mkdtemp()
 tor_process = None
 socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", onion_port, rdns=True)
 socket.socket = socks.socksocket
 # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
-def get_nonce():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        # s.settimeout(30.0)
-        s.connect((ONION, 80))
-        s.send(json.dumps({"action": "get_nonce", "hash": HASH}).encode('utf-8'))
-        nonce = s.recv(2048).decode('utf-8')
-        return nonce
-
-def send_request(action, content, nonce):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(30.0)
-        s.connect((ONION, 80))
-        payload = {"action": action, "content": content, "hash": HASH, "nonce": nonce}
-        s.send(json.dumps(payload).encode('utf-8'))
-        data = s.recv(2048).decode('utf-8')
-        return data
+def send_request(action, content):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(30)
+    sock.connect((ONION, 80))
+    sock.send(HASH.encode('utf-8'))
+    nonce = sock.recv(2048).decode('utf-8')
+    payload = {"action": action, "content": content, "hash": HASH, "nonce": nonce}
+    sock.send(json.dumps(payload).encode('utf-8'))
+    response = sock.recv(2048).decode('utf-8')
+    sock.close()
+    return response
 
 
 try:
@@ -88,20 +82,25 @@ except Exception as e:
     exit(1)
 
 try:
-    nonce = get_nonce()
-    print(nonce)
+    
+    # nonce = get_nonce()
+    # print(nonce)
     # enc_pass = send_request("encrypt", "TestPass123")
     # sleep(3)
     # dec_pass = send_request("decrypt", enc_pass)
-    # enc_data = send_request("encrypt", "TestPass123", get_nonce())
+    enc_pass = send_request("encrypt", "TestPass123")
+    print(enc_pass)
+    # sleep(1)
+    
+    dec_pass = send_request("decrypt", enc_pass)
     #sock.send(json.dumps({"action": "encrypt", "content": "TestPass123", "hash": HASH}).encode('utf-8'))
     #enc_data = sock.recv(2048).decode('utf-8')
     # sock.send(json.dumps({"action": "decrypt", "content": enc_data}))
     # dec_data = sock.recv(2048).decode('utf-8')
     # print(enc_data)
 
-    # print(enc_pass)
-    # print(dec_pass)
+    
+    print(dec_pass)
 
 except Exception as e:
     print(f"Connection error: {e}")

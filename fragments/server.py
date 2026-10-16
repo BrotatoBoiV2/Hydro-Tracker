@@ -20,7 +20,7 @@ SERVER_PORT = 5000
 SERVER_HOST = '127.0.0.1' 
 ONION_PORT = 80
 KEY_FILE = Path("~/.hydro/secret.key").expanduser()
-TOR_BIN_PATH = Path(__file__).parent / "bin/tor"
+TOR_BIN_PATH = Path(__file__).parent / "bin/tor-server"
 
 
 class Server:
@@ -63,38 +63,38 @@ class Server:
         print(f"Listening on address: {ephemeral.service_id}.onion")
 
     def start(self):
-        if not TOR_BIN_PATH.exists():
-            raise FileNotFoundError(
-                f"Portable Tor binary not found at {TOR_BIN_PATH}. "
-                "Please place a statically linked Linux tor binary inside the ./bin/ directory."
-            )
+        # if not TOR_BIN_PATH.exists():
+        #     raise FileNotFoundError(
+        #         f"Portable Tor binary not found at {TOR_BIN_PATH}. "
+        #         "Please place a statically linked Linux tor binary inside the ./bin/ directory."
+        #     )
 
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((SERVER_HOST, SERVER_PORT))
-        self.sock.listen()
+        # tor_data_dir = tempfile.mkdtemp(prefix="hydro_tor_")
+        # control_port = 9051
 
-        tor_data_dir = tempfile.mkdtemp(prefix="hydro_tor_")
-        control_port = 9051
+        # print("Launching bundled Tor background process...")
+        # try:
+        #     self.tor_process = launch_tor_with_config(
+        #         config={
+        #             'ControlPort': str(control_port),
+        #             'DataDirectory': tor_data_dir,
+        #             'SocksPort': '0',
+        #         },
+        #         tor_cmd=str(TOR_BIN_PATH),
+        #         take_ownership=True
+        #     )
+        # except Exception as e:
+        #     raise RuntimeError(f"Failed to start bundled Tor binary: {e}")
 
-        print("Launching bundled Tor background process...")
         try:
-            self.tor_process = launch_tor_with_config(
-                config={
-                    'ControlPort': str(control_port),
-                    'DataDirectory': tor_data_dir,
-                    'SocksPort': '0',
-                },
-                tor_cmd=str(TOR_BIN_PATH),
-                take_ownership=True
-            )
-        except Exception as e:
-            raise RuntimeError(f"Failed to start bundled Tor binary: {e}")
-
-        with Controller.from_port(port=control_port) as controller:
-            controller.authenticate()
-            self.check_key(controller)
+            with Controller.from_port(port=9051) as controller:
+                controller.authenticate()
+                self.check_key(controller)
             
-        self.start_listening()
+                self.start_listening()
+
+        except Exception as e:
+            print(f"Tor Controller Error: {e}. Ensure Tor is running with ControlPort enabled.")
 
     def get_nonce(self, hash: str) -> str:
         merged = hash + str(uuid.uuid4())
@@ -112,22 +112,37 @@ class Server:
         return nonce
 
     def start_listening(self):
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind((SERVER_HOST, SERVER_PORT))
+        self.sock.listen(5)
+
         print("Starting the server listener loop...")
 
-        try:
-            while True:
-                client, address = self.sock.accept()
-                raw_data = client.recv(2048)
+        while True:
+            client, address = self.sock.accept()
+            try:
+                raw_hash = client.recv(2048)
 
+                if not raw_hash:
+                #     # client.close()
+                    continue
+
+                nonce = self.get_nonce(raw_hash.decode('utf-8'))
+
+                client.send(nonce)
+
+                raw_data = client.recv(2048)
                 if not raw_data:
-                    client.close()
+                    # client.close()
                     continue
                 
                 try:
                     data = json.loads(raw_data.decode('utf-8'))
                 except json.JSONDecodeError:
-                    client.close()
+                    # client.close()
                     continue
+
+                
 
                 print(f"Received action: {data.get('action')}")
 
@@ -138,16 +153,18 @@ class Server:
                 elif data.get('action') == "decrypt":
                     decrypted_val = self.decrypt_password(data['content'], data['hash'], data['nonce'])
                     client.sendall(decrypted_val.encode('utf-8'))
+                else:
+                    continue
 
-                elif data.get('action') == "get_nonce":
-                    nonce = self.get_nonce(data.get('hash'))
-                    client.sendall(nonce.encode('utf-8'))
+                # elif data.get('action') == "get_nonce":
+                #     nonce = self.get_nonce(data.get('hash'))
+                #     client.sendall(nonce.encode('utf-8'))
                 
-                client.close()
-        finally:
-            self.sock.close()
-            if self.tor_process:
-                self.tor_process.kill()
+                # client.close()
+            except:
+                self.sock.close()
+                if self.tor_process:
+                    self.tor_process.kill()
 
     def create_key(self, hash: str, random_bytes: bytes) -> bytes:
         secret = random_bytes + hash.encode('utf-8')
@@ -208,6 +225,7 @@ class Server:
         return base64.b64encode(password_bytes).decode('utf-8')
 
     def decrypt_password(self, password: str, hash: str, nonce: str) -> str:
+        print(f"DEBUG: {password} {hash} {nonce}")
         if not self.valid_nonce(nonce):
             return "ERROR"
 
