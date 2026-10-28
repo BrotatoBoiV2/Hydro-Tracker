@@ -94,6 +94,35 @@
 
 ---
 
-## TO-DO
+### 2026/10/19
 
-* Have a functional binary for testing.
+* 14:40
+  - Finishing up the Secure Password module to allow a
+    simple compilation and usage of the program.
+
+---
+
+### 2026/10/24
+
+* 04:00
+  - Verified and fixed the server. now the client needs to
+    be rewritten for the Hydro Tracker.
+
+---
+
+### 2026/10/28
+
+* 04:55
+  - Commented on the server section of the secure password
+    module.
+  - I need to stress test the API to ensure invalid
+    requests do not go through.
+  - Also need to rewrite the client into its own section
+    for the hydro tracker module.
+
+---
+
+## TO-DO
+[!!!!!!] Rewrite the client module.
+[!!!!!!] Requires a thorough stress test on the API
+         responses.
