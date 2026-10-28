@@ -142,33 +142,47 @@ class NonceDatabase:
 
         return False
 
-    def valid_nonce(self, nonce: str) -> bool:
+    def valid_nonce(self, nonce: str, using=False) -> bool:
         """
             ~ Ensure the nonce being used is valid. ~
 
             Arguments:
                 nonce : The nonce to verify validity.
+                using : Is the nonce being used or cleaned.
+
+            Variables:
+                is_valid : If the nonce is valid.
+                err      : The error message for invalid
+                           nonces.
 
             Returns:
                 Bool : State of nonce being valid.
         """
 
+        # ~ Create variables. ~ #
+        is_valid = True
+        err = None
+
         # ~ Check if the nonce exists. ~ #
         if nonce not in list(self.nonces.keys()):
-            print("Nonce does not exist!")
-            return False
+            err = "Nonce does not exist!"
+            is_valid = False
         
         # ~ Check if the nonce is used. ~ #
         if self.nonces[nonce].get('is_used'):
-            print("Nonce is already used!")
-            return False
+            err = "Nonce is already used!"
+            is_valid = False
         
         # ~ Check if the nonce has expired. ~ #
         if self.nonce_expired(nonce):
-            print("Nonce is expired!")
-            return False
+            err = "Nonce is expired!"
+            is_valid = False
 
-        return True
+        # ~ Output an error for using the nonce. ~ #
+        if using and err:
+            print(err)
+
+        return is_valid
     
     def cleanup_loop(self) -> None:
         """
@@ -193,7 +207,7 @@ class NonceDatabase:
 
             # ~ Check each nonce and remove dead ones. ~ #
             with self.nonce_lock:
-                for nonce, nonce_data in self.nonces:
+                for nonce in list(self.nonces.keys()):
                     if not self.valid_nonce(nonce):
                         del self.nonces[nonce]
 

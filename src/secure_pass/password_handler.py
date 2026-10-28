@@ -105,7 +105,7 @@ class SecurePass:
         """
 
         # ~ Throw an error if nonce is invalid. ~ #
-        if not self.nonce_handler.valid_nonce(nonce):
+        if not self.nonce_handler.valid_nonce(nonce, using=True):
             return "ERROR"
 
         # ~ Create the variables. ~ #
@@ -148,7 +148,7 @@ class SecurePass:
         """
 
         # ~ Throw an error if nonce is invalid. ~ #
-        if not self.nonce_handler.valid_nonce(nonce):
+        if not self.nonce_handler.valid_nonce(nonce, using=True):
             return "ERROR"
 
         # ~ Create the variables. ~ #
@@ -183,7 +183,7 @@ class SecurePass:
 
         # ~ Create the key. ~ #
         secret = random_bytes + hash.encode('utf-8')
-        return = hash_secret_raw(
+        return hash_secret_raw(
             secret=secret,
             salt=self.salted,
             time_cost=3,
