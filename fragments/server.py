@@ -14,7 +14,7 @@ import subprocess as sp
 from argon2.low_level import hash_secret_raw, Type
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-SALTY = b"MySuperSecret_HydroTracker_Salt!420"
+SALTY = b"MySuperSecret_HydroTracker_Salt!420" # .env it
 TTL_SECONDS = 10
 SERVER_PORT = 5000
 SERVER_HOST = '127.0.0.1' 

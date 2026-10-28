@@ -43,12 +43,11 @@ def create_hash() -> str:
 
 HASH = create_hash()
 onion_port = 9090
-ONION = "fqum6wts4kfwcwatsqocaoyz3xt5vlrustlthmhvb57znwowunl6pwqd.onion"
+ONION = "iockbh2qzuob2syjgqlk6xkmgse3rnylqr7llakxf3rn7bpxgtctmfid.onion"
 tor_data = tempfile.mkdtemp()
 tor_process = None
 socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", onion_port, rdns=True)
 socket.socket = socks.socksocket
-# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def send_request(action, content):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,6 +59,7 @@ def send_request(action, content):
     sock.send(json.dumps(payload).encode('utf-8'))
     response = sock.recv(2048).decode('utf-8')
     sock.close()
+
     return response
 
 
