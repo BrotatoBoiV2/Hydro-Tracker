@@ -120,9 +120,13 @@
   - Also need to rewrite the client into its own section
     for the hydro tracker module.
 
+* 06:50
+  - Rewrote the client for the hydro tracker module.
+  - Next, I need to add commentation to the client section.
+
 ---
 
 ## TO-DO
-[!!!!!!] Rewrite the client module.
+[!!!!!!] Commentate the client module.
 [!!!!!!] Requires a thorough stress test on the API
          responses.
