@@ -124,9 +124,11 @@
   - Rewrote the client for the hydro tracker module.
   - Next, I need to add commentation to the client section.
 
+* 17:55
+  - Finished adding comments to the password client file.
+
 ---
 
 ## TO-DO
-[!!!!!!] Commentate the client module.
 [!!!!!!] Requires a thorough stress test on the API
          responses.
