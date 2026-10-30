@@ -42,53 +42,46 @@ from pathlib import Path
 import uuid
 import hashlib
 import subprocess as sp
+import os
+import base64
+import keyring
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 
 class ClientHash:
     """
-        ~ Handle the clients local hash. ~
+        ~ Handle the client's stable, high-entropy local hash. ~
 
         Methods:
-            __init__        : Initialize the hash.
-            get_machine_id  : Obtain the ID from the
-                              machine.
-            get_disk_serial : Obtain the disks serial
-                              number.
-            create_hash     : Create clients full local
-                              hash.
+            __init__            : Initialize the hash and persistent salt.
+            get_machine_id      : Obtain the stable OS machine ID.
+            _get_or_create_salt : Load or generate a persistent cryptographic salt.
+            create_hash         : Create client's full stable local hash.
     """
 
     def __init__(self) -> None:
         """
-            ~ Initialize the local hash. ~
+            ~ Initialize the local hash and salt storage. ~
 
             Attributes:
-                client_hash : The clients final local hash.
+                salt_path   : Path to the persistent local salt file.
+                client_hash : The client's final local hash.
 
             Returns:
                 None
         """
-        
-        # ~ Initialize the attributes. ~ #
+        self.salt_path = Path("~/.hydro/client.salt").expanduser()
         self.client_hash = self.create_hash()
 
     def get_machine_id(self) -> str:
         """
-            ~ Obtain the machines ID. ~
-
-            Variables:
-                pathname : The pathname to check for an ID.
-                path : The path object of that pathname.
+            ~ Obtain the machine's persistent OS ID. ~
 
             Returns:
                 String : The unique machine ID or a fallback one.
         """
-
-        # ~ Check for the machine ID. ~ #
         for pathname in ["/etc/machine-id", "/var/lib/dbus/machine-id"]:
             path = Path(pathname)
-
-            # ~ Return the ID if it exists. ~ #
             if path.exists():
                 try:
                     return path.read_text().strip()
@@ -97,52 +90,45 @@ class ClientHash:
 
         return "FallbackMachineID"
 
-    def get_disk_serial(self) -> str:
+    def _get_or_create_salt(self) -> bytes:
         """
-            ~ Obtiain the disks serial number. ~
-
-            Variables:
-                response : The response of the `lsblk` command.
-                serial   : The extracted serial number.
-                line     : Each line returned form the command.
+            ~ Retrieve or generate a high-entropy cryptographic salt. ~
 
             Returns:
-                String : Returns the disks serial number or
-                         a fallback one.
+                Bytes : 32 bytes of cryptographically secure random data.
         """
+        if self.salt_path.exists():
+            with open(self.salt_path, "rb") as f:
+                return f.read()
+        
+        # Ensure parent directory exists with secure permissions
+        self.salt_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Generate 256 bits of true random entropy
+        salt = os.urandom(32)
+        
+        with open(self.salt_path, "wb") as f:
+            os.chmod(self.salt_path, 0o600)
+            f.write(salt)
+            
+        return salt
 
-        # ~ Attempt to obtain the serial number. ~ #
-        try:
-            response = sp.run(["lsblk", "-n", "-o", "SERIAL"],
-                            stdout=sp.PIPE, stderr=sp.PIPE, text=True, check=True)
-            serial = [line.strip() for line in response.stdout.split("\n") if line.strip()]
-            return serial[0] if serial else "FallbackDiskSerial"
-
-        except Exception:
-            return "FallbackDiskSerial"
-    
     def create_hash(self) -> str:
         """
-            ~ Create the clients local hash. ~ #
-
-            Variables:
-                mid : The machines ID.
-                dsk : The disks serial number.
-                mac : The MAC address.
-                final_str : The final hash string
+            ~ Create the stable, high-entropy client hash. ~
 
             Returns:
-                String : A final hashed version of the
-                         final string.
+                String : SHA-256 hash combining machine ID and random salt.
         """
-
-        # ~ Obtain info and create hash string. ~ #
         mid = self.get_machine_id()
-        dsk = self.get_disk_serial()
-        mac = f"{uuid.getnode():012x}"
-        random_str = f"{mid}-{dsk}-{mac}"
+        salt = self._get_or_create_salt()
 
-        return hashlib.sha256(random_str.encode('utf-8')).hexdigest()
+        # Combine OS instance ID with 256 bits of persistent random entropy
+        hasher = hashlib.sha256()
+        hasher.update(mid.encode('utf-8'))
+        hasher.update(salt)
+
+        return hasher.hexdigest()
 
 
 class PasswordClient:
@@ -266,16 +252,60 @@ class PasswordClient:
         return response
 
 
+class LocalCryptograph:
+    def __init__(self):
+        self.key_path = Path( "~/.hydro/device.key").expanduser()
+        self._key = self._get_or_create_persistent_key()
+
+    def _get_or_create_persistent_key(self) -> bytes:
+        if self.key_path.exists():
+            # Read the existing key
+            with open(self.key_path, "rb") as f:
+                return base64.b64decode(f.read())
+        
+        # Ensure parent directory exists with secure permissions
+        self.key_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Generate a cryptographically secure 256-bit AES key
+        raw_key = AESGCM.generate_key(bit_length=256)
+        
+        # Write the key to disk with strict user-only read/write permissions (0600)
+        with open(self.key_path, "wb") as f:
+            os.chmod(self.key_path, 0o600)
+            f.write(base64.b64encode(raw_key))
+            
+        return raw_key
+
+    def encrypt(self, content: str) -> str:
+        rand_nonce = os.urandom(12)
+        aesgcm = AESGCM(self._key)
+        ciphertext = aesgcm.encrypt(rand_nonce, content.encode('utf-8'), None)
+        payload = rand_nonce + ciphertext
+        return base64.b64encode(payload).decode('utf-8')
+
+    def decrypt(self, content: str) -> str:
+        payload = base64.b64decode(content.encode('utf-8'))
+        rand_nonce = payload[:12]
+        ciphertext = payload[12:]
+        aesgcm = AESGCM(self._key)
+        decrypted_bytes = aesgcm.decrypt(rand_nonce, ciphertext, None)
+        return decrypted_bytes.decode('utf-8')
+
 # ~ Main test. ~ #
 if __name__ == '__main__':
     pass_clinet = PasswordClient()
+    local_cryptographer = LocalCryptograph()
+
     try:
         client_hash = ClientHash().client_hash
-        enc_pass = pass_clinet.send_request("encrypt", "TestPass123", client_hash)
-        print(enc_pass)
-        client_hash = ClientHash().client_hash
+        safe_pass = local_cryptographer.encrypt("TestPass123")
+        print(f"Local Encrypted: {safe_pass}")
+        enc_pass = pass_clinet.send_request("encrypt", safe_pass, client_hash)
+        print(f"API Encrypted: {enc_pass}")
         dec_pass = pass_clinet.send_request("decrypt", enc_pass, client_hash)
-        print(dec_pass)
+        print(f"Server Decrypted: {dec_pass}")
+        plain_pass = local_cryptographer.decrypt(dec_pass)
+        print(f"Plaintext: {plain_pass}")
 
     except Exception as e:
         print(f"Connection error: {e}")
