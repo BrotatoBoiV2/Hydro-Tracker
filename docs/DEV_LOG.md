@@ -136,6 +136,17 @@
 
 ---
 
+### 2026/11/09
+
+* 09:10
+  - Testing has gone underway, now rate-limiting is being
+    introduced and ironed out.
+
+* 09:50
+  - The rate-limiting and expiry are now functional.
+  - Nonce flooding is an average of: 7/15 on a 3-run
+    average.
+
+---
+
 ## TO-DO
-[!!!!!!] Requires a thorough stress test on the API
-         responses.

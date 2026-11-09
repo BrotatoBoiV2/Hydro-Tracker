@@ -34,6 +34,7 @@ If not, see <https://www.gnu.org/licenses/>
 import socket
 from pathlib import Path
 import json
+from threading import Thread
 
 # ~ Third-Party Imports. ~ #
 from stem.control import Controller
@@ -170,27 +171,8 @@ class Server:
     def start_listening(self) -> None:
         """
             ~ Begin listening for connections and requests
-              to the server. ~
-
-            Variables:
-                client   : The connectd clients socket
-                           object.
-                address  : The connected clients address.
-                raw_hash : The clients raw hash.
-                nonce    : The created nonce for the
-                           clients request.
-                raw_data : The request data sent from the
-                           client.
-                data     : The loaded data to process.
-                payload  : The data payload that is used
-                           for cryptography.
-                enc_pass : The encryptd password value.
-                dec_pass : The decrypted password value.
-
-            Returns:
-                None
+              to the server using threaded concurrency. ~
         """
-
         # ~ Set up listening for the server. ~ #
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.server_host, self.server_port))
@@ -200,54 +182,82 @@ class Server:
 
         # ~ Start listening for connections. ~ #
         while True:
-            client, address = self.sock.accept()
-
-            # ~ Attempt to send the data to the server. ~ #
             try:
-                raw_hash = client.recv(2048)
-
-                if not raw_hash:
-                    continue
-                    
-                # ~ Create a nonce and send it to the client. ~ #
-                nonce = self.nonce_handler.get_nonce(raw_hash.decode('utf-8'))
-                client.send(nonce)
-                raw_data = client.recv(2048)
+                client, address = self.sock.accept()
                 
-                if not raw_data:
-                    continue
+                # Spawn a separate thread for each client connection 
+                # so the main loop can immediately accept new connections.
+                client_thread = Thread(target=self.handle_client, args=(client,))
+                client_thread.daemon = True
+                client_thread.start()
 
-                # ~ Attempt to load the data. ~ #
-                data = None
-                try:
-                    data = json.loads(raw_data.decode('utf-8'))
+            except Exception as err:
+                print(f"Server socket accept error: {err}")
+                break
 
-                except json.JSONDecodeError:
-                    continue 
+        # ~ Close the server socket on exit. ~ #
+        self.sock.close()
+        if self.tor_process:
+            self.tor_process.kill()
 
-                if not data:
-                    continue
+    def handle_client(self, client: socket.socket) -> None:
+        """
+            ~ Handle an individual client connection safely 
+              without crashing the main server loop. ~
+        """
+        try:
+            client.settimeout(15) # Prevent hanging connections forever
+            raw_hash = client.recv(2048)
 
-                # ~ Run the cryptographic data. ~ #
-                payload = (data['content'], data['hash'], data['nonce'])
-
-                if data.get('action') == "encrypt":
-                    enc_pass = self.sec_pass.encrypt_password(*payload)
-                    client.sendall(enc_pass.encode('utf-8'))
+            if not raw_hash:
+                client.close()
+                return
                 
-                elif data.get('action') == "decrypt":
-                    dec_pass = self.sec_pass.decrypt_password(*payload)
-                    client.sendall(dec_pass.encode('utf-8'))
+            client_hash_str = raw_hash.decode('utf-8').strip()
 
-                else:
-                    continue
+            # --- RATE LIMIT CHECK ---
+            if self.nonce_handler.check_rate_limit(client_hash_str):
+                print(f"[!] Rate limit exceeded for client hash: {client_hash_str[:8]}...")
+                client.close()
+                return
 
-            # ~ Close the server socket. ~ #
-            except:
-                self.sock.close()
+            # ~ Create a nonce and send it to the client. ~ #
+            nonce = self.nonce_handler.get_nonce(raw_hash.decode('utf-8'))
+            client.send(nonce)
+            raw_data = client.recv(2048)
+            
+            if not raw_data:
+                client.close()
+                return
 
-                if self.tor_process:
-                    self.tor_process.kill()  
+            # ~ Attempt to load the data. ~ #
+            try:
+                data = json.loads(raw_data.decode('utf-8'))
+            except json.JSONDecodeError:
+                client.close()
+                return 
+
+            if not data or not all(k in data for k in ('content', 'hash', 'nonce', 'action')):
+                client.close()
+                return
+
+            # ~ Run the cryptographic data. ~ #
+            payload = (data['content'], data['hash'], data['nonce'])
+
+            if data.get('action') == "encrypt":
+                enc_pass = self.sec_pass.encrypt_password(*payload)
+                client.sendall(enc_pass.encode('utf-8'))
+            
+            elif data.get('action') == "decrypt":
+                dec_pass = self.sec_pass.decrypt_password(*payload)
+                client.sendall(dec_pass.encode('utf-8'))
+
+        except socket.timeout:
+            print("Client connection timed out.")
+        except Exception as err:
+            print(f"Error handling client request: {err}")
+        finally:
+            client.close()
 
 
 # ~ Execute the main server. ~ #

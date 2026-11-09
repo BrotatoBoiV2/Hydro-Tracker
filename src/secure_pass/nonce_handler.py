@@ -35,7 +35,7 @@ If not, see <https://www.gnu.org/licenses/>
 import base64
 from datetime import datetime
 from threading import Lock, Thread
-from time import sleep
+from time import sleep, time
 import uuid
 
 
@@ -56,7 +56,7 @@ class NonceDatabase:
                             it.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, rate_limit=3) -> None:
         """
             ~ Initialize the nonce database, and start the
               cleanup thread. ~
@@ -76,9 +76,28 @@ class NonceDatabase:
         self.nonces = dict()
         self.nonce_lock = Lock()
         self.ttl = 10
+        self.last_request_times = {}
+        self.rate_limit = rate_limit
 
         # ~ Start the cleanup thread. ~ #
         Thread(target=self.cleanup_loop, daemon=True).start()
+
+    def check_rate_limit(self, client_hash: str):
+        """
+            ~ Returns True if the client is flooding (too fast), 
+              False if allowed. ~
+        """
+
+        now = time()
+        last_time = self.last_request_times.get(client_hash, 0.0)
+        
+        if now - last_time < self.rate_limit:
+            return True  # Rate limited!
+            
+        # Update last seen time
+        self.last_request_times[client_hash] = now
+        return False
+
 
     def get_nonce(self, hash: str) -> bytes:
         """
@@ -136,8 +155,8 @@ class NonceDatabase:
         current = datetime.now()
         deltatime = current - created
 
-        # ~ Check if nonce is older than 30 seconds. ~ #
-        if deltatime.total_seconds() > 30:
+        # ~ Check if nonce is older than ??? seconds. ~ #
+        if deltatime.total_seconds() > 3:
             return True
 
         return False
