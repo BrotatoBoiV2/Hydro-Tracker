@@ -145,8 +145,21 @@
 * 09:50
   - The rate-limiting and expiry are now functional.
   - Nonce flooding is an average of: 7/15 on a 3-run
-    average.
+    average. (Could be made better but good for now)
+
+---
+
+### 2026/11/11
+
+* 06:35
+  - Beginning to write all of the pieces together.
+
+* 07:12
+  - Hydro usage app has been written, now I will have a
+    hotkey to swap to the daemon panel.
 
 ---
 
 ## TO-DO
+
+***[!!!]*** Write and connect the daemon panel.
