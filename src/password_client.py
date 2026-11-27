@@ -40,6 +40,7 @@ import json
 from time import sleep
 from pathlib import Path
 import uuid
+import shutil
 import hashlib
 import subprocess as sp
 import os
@@ -101,10 +102,8 @@ class ClientHash:
             with open(self.salt_path, "rb") as f:
                 return f.read()
         
-        # Ensure parent directory exists with secure permissions
         self.salt_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Generate 256 bits of true random entropy
         salt = os.urandom(32)
         
         with open(self.salt_path, "wb") as f:
@@ -123,7 +122,6 @@ class ClientHash:
         mid = self.get_machine_id()
         salt = self._get_or_create_salt()
 
-        # Combine OS instance ID with 256 bits of persistent random entropy
         hasher = hashlib.sha256()
         hasher.update(mid.encode('utf-8'))
         hasher.update(salt)
@@ -164,11 +162,7 @@ class PasswordClient:
         self.onion_port = 9090
         self.onion = "iockbh2qzuob2syjgqlk6xkmgse3rnylqr7llakxf3rn7bpxgtctmfid.onion" # Obtain dynamically.
         self.tor_data = tempfile.mkdtemp()
-        self.tor_process = self.start_client()
-
-        # ~ Setup the socket for connection. ~ #
-        socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", self.onion_port, rdns=True)
-        socket.socket = socks.socksocket
+        self.tor_process = None
 
     def start_client(self) -> sp.Popen:
         """
@@ -202,6 +196,30 @@ class PasswordClient:
             print(f"Error with Tor: {e}")
             exit(1)
 
+    def stop_client(self, timeout: float = 5.0) -> None:
+        """
+            ~ Stop the Tor subprocess and remove temporary data. ~
+
+            Arguments:
+                timeout : Seconds to wait for graceful termination
+                          before forcing kill.
+
+            Returns:
+                None
+        """
+        if self.tor_process is not None and self.tor_process.poll() is None:
+            self.tor_process.terminate()
+            try:
+                self.tor_process.wait(timeout=timeout)
+            except sp.TimeoutExpired:
+                self.tor_process.kill()
+                self.tor_process.wait()
+
+        self.tor_process = None
+
+        if self.tor_data and os.path.exists(self.tor_data):
+            shutil.rmtree(self.tor_data, ignore_errors=True)
+
     def send_request(self, action: str, content: str, client_hash: str) -> str:
         """
             ~ Send a request to the API server. ~
@@ -229,8 +247,12 @@ class PasswordClient:
                          action on the content.
         """
 
+        self.tor_process = self.start_client()
+        
         # ~ Create and setup the socket. ~ #
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socks.socksocket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.set_proxy(socks.SOCKS5, "127.0.0.1", self.onion_port, rdns=True)    
         sock.settimeout(30)
         sock.connect((self.onion, 80))
         sock.send(client_hash.encode('utf-8'))
@@ -249,6 +271,8 @@ class PasswordClient:
         response = sock.recv(2048).decode('utf-8')
         sock.close()
 
+        self.stop_client()
+
         return response
 
 
@@ -259,17 +283,13 @@ class LocalCryptograph:
 
     def _get_or_create_persistent_key(self) -> bytes:
         if self.key_path.exists():
-            # Read the existing key
             with open(self.key_path, "rb") as f:
                 return base64.b64decode(f.read())
         
-        # Ensure parent directory exists with secure permissions
         self.key_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Generate a cryptographically secure 256-bit AES key
         raw_key = AESGCM.generate_key(bit_length=256)
-        
-        # Write the key to disk with strict user-only read/write permissions (0600)
+
         with open(self.key_path, "wb") as f:
             os.chmod(self.key_path, 0o600)
             f.write(base64.b64encode(raw_key))

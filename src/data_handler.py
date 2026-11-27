@@ -9,6 +9,10 @@ import subprocess
 from pathlib import Path
 import shutil
 import pandas as pd
+from selenium.webdriver.firefox.service import Service
+
+from utils import log_to_file
+
 
 BASE_DIR = Path("~/.hydro").expanduser()
 BASE_DIR.mkdir(parents=True, exist_ok=True)
@@ -16,27 +20,31 @@ SYSTEMD_PATH = "/etc/systemd/system/"
 SECURE_PASS_BIN = Path(__file__).parent / "lib/secure_pass"
     
 
-def obtain_data():
+def obtain_data(pass_client, cryptograph, hash):
+    config_path = BASE_DIR / "config.json"
+    if not config_path.exists():
+        return False
+        
     with open(BASE_DIR / "config.json", "r") as file:
         config = json.load(file)
         login_url = "https://account.hydroottawa.com/login"
         login_email = config["Login_Email"]
         enc_password = config.get("Login_Password", "")
-        dec_pass_res = subprocess.run([SECURE_PASS_BIN, enc_password, "--decrypt"], capture_output=True)
-        login_password = dec_pass_res.stdout.decode('utf-8').replace('\n', '')
+        dec_pass = pass_client.send_request("decrypt", enc_password, hash)
+        login_password = cryptograph.decrypt(dec_pass)
 
-    os.environ["MOZ_HEADLESS"] = "1"
     options = Options()
-    options.add_argument("--headless")
-    
-    driver = webdriver.Firefox(options=options)
+    options.add_argument("-headless")
+    options.binary_location = "/usr/bin/firefox" 
+    service = Service(log_output="geckodriver.log")
+    driver = webdriver.Firefox(service=service, options=options)
 
     try: # This shii ugly...
         driver.get(login_url)
 
         time.sleep(5)
 
-        print("Logging in...")
+        log_to_file("Logging in...")
 
         email_field = driver.find_element(By.ID, "EmailAddress")
         password_field = driver.find_element(By.ID, "LoginPassword")
@@ -47,7 +55,7 @@ def obtain_data():
         login_button = driver.find_element(By.ID, "LoginSubmitButton")
         login_button.click()
 
-        print("Logged in!")
+        log_to_file("Logged in!")
 
         time.sleep(10)
 
@@ -69,16 +77,18 @@ def obtain_data():
         downloaded_file = Path("~/Downloads/Current billing period.xlsx").expanduser()
         subprocess.run(["mv", downloaded_file, BASE_DIR / "current_bill.xlsx"])
 
-        print("File saved!")
+        log_to_file("File saved!")
 
     except Exception as e:
-        print(f"An error occured: {e}")
+        log_to_file(f"An error occured: {e}")
+
+    finally:
+        driver.quit()
 
 def convert_data():
-    print("Converting")
-    print(BASE_DIR / 'current_bill.xlsx')
+    log_to_file("Converting")
     df = pd.read_excel(BASE_DIR / 'current_bill.xlsx', header=2)
-    print(f"Processing {df}")
+    log_to_file(f"Processing {df}")
     date_col = df.columns[0]
     df[date_col] = pd.to_datetime(df[date_col], unit='ms').dt.strftime('%Y-%m-%d')
     df = df.dropna(subset=[date_col])
@@ -86,7 +96,7 @@ def convert_data():
 
 
 def clean_data():
-    print("Cleaning/....")
+    log_to_file("Cleaning....")
     convert_data()
 
     with open(BASE_DIR / "dirty_bill.json", "r", encoding="utf-8") as file:
@@ -123,4 +133,13 @@ def clean_data():
 
     with open(Path("~/.hydro/current_bill.json").expanduser(), "w") as file:
         json.dump(final, file, indent=4)
+
+
+if __name__ == '__main__':
+    from password_client import PasswordClient, LocalCryptograph, ClientHash
+
+    # LOCAL_HASH  = ClientHash().client_hash
+    # PASS_CLIENT = PasswordClient()
+    # CRYPTOGRAPH = LocalCryptograph()
+    obtain_data()
 

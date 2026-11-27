@@ -1,0 +1,156 @@
+1795762355995	geckodriver	INFO	Listening on 127.0.0.1:34555
+1795762388997	webdriver::server	INFO	Shutting down
+1795763784985	geckodriver	INFO	Listening on 127.0.0.1:37719
+1795763817923	webdriver::server	INFO	Shutting down
+1795763922784	geckodriver	INFO	Listening on 127.0.0.1:40759
+1795763955741	webdriver::server	INFO	Shutting down
+1795763992011	geckodriver	INFO	Listening on 127.0.0.1:36625
+1795764024921	webdriver::server	INFO	Shutting down
+1795764715068	geckodriver	INFO	Listening on 127.0.0.1:33401
+1795764715116	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" "/usr/bin/firefox" "--m ... ss" "--remote-debugging-port" "42665" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "/tmp/rust_mozprofilexV8eRI"
+*** You are running in headless mode.
+1795764715600	Marionette	INFO	Marionette enabled
+1795764715704	Marionette	INFO	Listening on port 33015
+WebDriver BiDi listening on ws://127.0.0.1:42665
+Read port: 33015
+1795764715782	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+1795764725803	Marionette	INFO	Stopped listening on port 33015
+1795764726477	webdriver::server	INFO	Shutting down
+1795765348377	geckodriver	INFO	Listening on 127.0.0.1:56825
+1795765348506	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" "/usr/bin/firefox" "--m ... ss" "--remote-debugging-port" "46601" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "/tmp/rust_mozprofileX8PNym"
+*** You are running in headless mode.
+1795765349644	Marionette	INFO	Marionette enabled
+1795765349836	Marionette	INFO	Listening on port 40407
+WebDriver BiDi listening on ws://127.0.0.1:46601
+Read port: 40407
+1795765350071	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+1795765361102	Marionette	INFO	Stopped listening on port 40407
+1795765361785	webdriver::server	INFO	Shutting down
+1795765629934	geckodriver	INFO	Listening on 127.0.0.1:41303
+1795765629981	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" "/usr/bin/firefox" "--m ... ss" "--remote-debugging-port" "59211" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "/tmp/rust_mozprofilezL2LnX"
+*** You are running in headless mode.
+1795765630455	Marionette	INFO	Marionette enabled
+1795765630577	Marionette	INFO	Listening on port 33629
+Read port: 33629
+WebDriver BiDi listening on ws://127.0.0.1:59211
+1795765630650	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+[Parent 9475, Main Thread] WARNING: g_object_get: assertion 'G_IS_OBJECT (object)' failed: 'glib warning', file toolkit/xre/nsSigHandlers.cpp:244
+
+(firefox:9475): GLib-GObject-CRITICAL **: 02:47:37.365: g_object_get: assertion 'G_IS_OBJECT (object)' failed
+1795765660190	Marionette	INFO	Stopped listening on port 33629
+console.error: (new Error("Polling for changes failed: .", "resource://services-settings/remote-settings.sys.mjs", 490))
+1795765660762	webdriver::server	INFO	Shutting down
+1795765928340	geckodriver	INFO	Listening on 127.0.0.1:44871
+1795765928386	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" "/usr/bin/firefox" "--m ... ss" "--remote-debugging-port" "42863" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "/tmp/rust_mozprofilevC3TqC"
+*** You are running in headless mode.
+1795765928860	Marionette	INFO	Marionette enabled
+1795765928976	Marionette	INFO	Listening on port 41875
+WebDriver BiDi listening on ws://127.0.0.1:42863
+Read port: 41875
+1795765929050	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+[Parent 10149, Main Thread] WARNING: g_object_get: assertion 'G_IS_OBJECT (object)' failed: 'glib warning', file toolkit/xre/nsSigHandlers.cpp:244
+
+(firefox:10149): GLib-GObject-CRITICAL **: 02:52:36.316: g_object_get: assertion 'G_IS_OBJECT (object)' failed
+1795765959132	Marionette	INFO	Stopped listening on port 41875
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+console.error: (new Error("IndexedDB: main/ai-window-telemetry-triggers getLastModified() IndexedDB:  execute() The application is shutting down", "resource://services-settings/IDBHelpers.sys.mjs", 16))
+1795765960085	webdriver::server	INFO	Shutting down
+1795766249985	geckodriver	INFO	Listening on 127.0.0.1:53307
+1795766250031	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" "/usr/bin/firefox" "--m ... ss" "--remote-debugging-port" "41087" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "/tmp/rust_mozprofile0yey7C"
+*** You are running in headless mode.
+1795766250510	Marionette	INFO	Marionette enabled
+1795766250618	Marionette	INFO	Listening on port 45453
+WebDriver BiDi listening on ws://127.0.0.1:41087
+Read port: 45453
+1795766250692	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+[Parent 10825, Main Thread] WARNING: g_object_get: assertion 'G_IS_OBJECT (object)' failed: 'glib warning', file toolkit/xre/nsSigHandlers.cpp:244
+
+(firefox:10825): GLib-GObject-CRITICAL **: 02:57:57.791: g_object_get: assertion 'G_IS_OBJECT (object)' failed
+1795766280605	Marionette	INFO	Stopped listening on port 45453
+console.error: RSLoader: 
+  Failed to retrieve recipes from Remote Settings
+  Message: Error: Shutdown started
+  Stack:
+    ShutdownStartedError@resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs:1571:5
+listener@resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs:741:35
+@resource://nimbus/lib/RemoteSettingsExperimentLoader.sys.mjs:306:31
+trigger@resource://gre/modules/AsyncShutdown.sys.mjs:773:23
+trigger@resource://gre/modules/AsyncShutdown.sys.mjs:811:11
+_wait@resource://gre/modules/AsyncShutdown.sys.mjs:941:15
+wait@resource://gre/modules/AsyncShutdown.sys.mjs:922:34
+observe@resource://gre/modules/AsyncShutdown.sys.mjs:573:10
+quit@chrome://remote/content/shared/Browser.sys.mjs:102:22
+quit@chrome://remote/content/marionette/driver.sys.mjs:3096:44
+dispatch@chrome://remote/content/marionette/server.sys.mjs:323:49
+execute@chrome://remote/content/marionette/server.sys.mjs:295:16
+onPacket/<@chrome://remote/content/marionette/server.sys.mjs:268:20
+onPacket@chrome://remote/content/marionette/server.sys.mjs:269:9
+_onJSONObjectReady/<@chrome://remote/content/marionette/transport.sys.mjs:493:20
+
+JavaScript warning: https://apps.cac1.pure.cloud/messenger/thirdpartyplugins.min.js, line 6: Script terminated by timeout at:
+h@https://apps.cac1.pure.cloud/messenger/thirdpartyplugins.min.js:6:30438
+
+JavaScript warning: https://t.contentsquare.net/releases/15.285.0/es2019/11c0004-49140b66.js, line 22: Script terminated by timeout at:
+cc@https://t.contentsquare.net/releases/15.285.0/es2019/11c0004-49140b66.js:22:11212
+
+console.error: (new Error("IndexedDB: main/ms-images getLastModified() IndexedDB:  execute() The application is shutting down", "resource://services-settings/IDBHelpers.sys.mjs", 16))
+1795766281181	webdriver::server	INFO	Shutting down
+1795766795778	geckodriver	INFO	Listening on 127.0.0.1:44945
+1795766795827	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" "/usr/bin/firefox" "--m ... ss" "--remote-debugging-port" "50907" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "/tmp/rust_mozprofilemNNT4R"
+*** You are running in headless mode.
+1795766796283	Marionette	INFO	Marionette enabled
+1795766796412	Marionette	INFO	Listening on port 42127
+WebDriver BiDi listening on ws://127.0.0.1:50907
+Read port: 42127
+1795766796496	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://account.hydroottawa.com."
+[Parent 11619, Main Thread] WARNING: g_object_get: assertion 'G_IS_OBJECT (object)' failed: 'glib warning', file toolkit/xre/nsSigHandlers.cpp:244
+
+(firefox:11619): GLib-GObject-CRITICAL **: 03:07:03.995: g_object_get: assertion 'G_IS_OBJECT (object)' failed
+console.error: "Experiment desktop-release-rollout-show-relay-to-all-browsers-next-sign-up-modal-cta has unknown featureId: email-autocomplete-relay"
+console.error: "Experiment visual-card-updates has unknown featureId: newtabRefinedCardsLayout"
+console.error: "Experiment enable-nimbus-unenrollment-synchronization has unknown featureId: nimbusStore"
+console.error: "Experiment private-window-visual-refresh-design-change-only has unknown featureId: feltPrivacy"
+1795766826841	Marionette	INFO	Stopped listening on port 42127
+console.error: (new AbortError("IndexedDB: main/content-classifier-lists getLastModified() IndexedDB:  execute() A request was aborted, for example through a call to IDBTransaction.abort.", "resource://services-settings/IDBHelpers.sys.mjs", 16))
+1795766827529	webdriver::server	INFO	Shutting down

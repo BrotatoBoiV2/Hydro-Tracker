@@ -216,10 +216,10 @@ class Server:
             client_hash_str = raw_hash.decode('utf-8').strip()
 
             # --- RATE LIMIT CHECK ---
-            if self.nonce_handler.check_rate_limit(client_hash_str):
-                print(f"[!] Rate limit exceeded for client hash: {client_hash_str[:8]}...")
-                client.close()
-                return
+            # if self.nonce_handler.check_rate_limit(client_hash_str):
+            #     print(f"[!] Rate limit exceeded for client hash: {client_hash_str[:8]}...")
+            #     client.close()
+            #     return
 
             # ~ Create a nonce and send it to the client. ~ #
             nonce = self.nonce_handler.get_nonce(raw_hash.decode('utf-8'))

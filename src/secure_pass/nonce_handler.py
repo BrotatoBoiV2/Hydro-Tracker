@@ -91,7 +91,7 @@ class NonceDatabase:
         now = time()
         last_time = self.last_request_times.get(client_hash, 0.0)
         
-        if now - last_time < self.rate_limit:
+        if last_time != 0.0 and now - last_time < self.rate_limit:
             return True  # Rate limited!
             
         # Update last seen time
