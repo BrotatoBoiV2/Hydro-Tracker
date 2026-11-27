@@ -160,6 +160,15 @@
 
 ---
 
+### 2026/11/27
+
+* 07:10
+  - Took a day to rewrite the entire architecture as well
+    as included a live usage updating functionality.
+  - Need to clean the warnings and make updating more
+    responsive and have it display progress.
+---
+
 ## TO-DO
 
 ***[!!!]*** Write and connect the daemon panel.
